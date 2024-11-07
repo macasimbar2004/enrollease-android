@@ -1,4 +1,4 @@
-# Enrollease
+# Enrollease Mobile App
 
 Enrollease is an Android mobile app designed to streamline the enrollment process for parents, making it easier to enroll their children in educational institutions.
 
