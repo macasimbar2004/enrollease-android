@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "481835554226",
+    "project_id": "enrollease-4a6cd",
+    "storage_bucket": "enrollease-4a6cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481835554226:android:aa56796c609db5fd75c0ab",
+        "android_client_info": {
+          "package_name": "com.example.enrollease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwabsnubbbwEt4jU84crLUxwe4NqF0rgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

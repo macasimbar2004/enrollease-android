@@ -9,14 +9,14 @@ class CustomTextFormField extends StatefulWidget {
   final TextEditingController? ageController; // Add age controller here
   final FocusNode? focusNode;
   final String hintText;
-  final IconData? iconData;
+  final Widget? iconData;
   final bool? toShowLabelText;
   final bool? isDateTime;
   final IconData? iconDataSuffix;
   final double? leftPadding;
   final bool toShowPrefixIcon;
   final bool? isPhoneNumber;
-  final String? Function(String?)? validator;
+  final String? Function(String?)? validator; // Ensure correct type here
   final int? maxLength;
 
   const CustomTextFormField(
@@ -100,7 +100,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(color: Colors.blue, width: 2.0),
         ),
-        prefixIcon: widget.toShowPrefixIcon ? Icon(widget.iconData) : null,
+        prefixIcon: widget.toShowPrefixIcon ? widget.iconData : null,
         suffixIcon: widget.toShowIcon && widget.iconDataSuffix != null
             ? IconButton(
                 onPressed: widget.isDateTime == true ? _selectDate : null,
@@ -126,7 +126,9 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           color: Colors.black,
           fontSize: 12.0,
         ),
-        labelText: widget.hintText,
+        labelText: widget.toShowLabelText != null && widget.toShowLabelText!
+            ? widget.hintText
+            : null,
         labelStyle: const TextStyle(
           fontWeight: FontWeight.w400,
           color: Colors.black,
@@ -136,14 +138,17 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       keyboardType: widget.isPhoneNumber == true
           ? const TextInputType.numberWithOptions()
           : null,
-      maxLength: widget.isPhoneNumber == true ? 11 : widget.maxLength,
+      maxLength: widget.isPhoneNumber == true && widget.maxLength != null
+          ? widget.maxLength
+          : widget.maxLength,
       inputFormatters: widget.isPhoneNumber == true
-          ? [FilteringTextInputFormatter.digitsOnly] // Restrict to digits only
+          ? [
+              FilteringTextInputFormatter.allow(RegExp(r'^[\d+]*$'))
+            ] // Restrict to digits only
           : null,
       validator: widget.validator != null
           ? (value) {
-              widget.validator;
-              return null;
+              return widget.validator!(value);
             }
           : null,
     );

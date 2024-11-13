@@ -44,11 +44,11 @@ class CustomBtn extends StatelessWidget {
       child: InkWell(
         focusNode: focusNode,
         onTap: onTap,
-        borderRadius: BorderRadius.circular(15.0),
+        borderRadius: BorderRadius.circular(10.0),
         child: Ink(
           padding: EdgeInsets.symmetric(vertical: vertical),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.0),
+            borderRadius: BorderRadius.circular(10.0),
             color: colorBg,
           ),
           child: SizedBox(
