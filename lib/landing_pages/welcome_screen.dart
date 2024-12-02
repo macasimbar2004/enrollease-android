@@ -1,9 +1,10 @@
+import 'package:enrollease/auth/auth.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/logos.dart';
 import 'package:enrollease/utils/text_styles.dart';
-import 'package:enrollease/landing_pages/sign_in.dart';
 import 'package:enrollease/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -49,13 +50,19 @@ class WelcomeScreen extends StatelessWidget {
                   child: SizedBox(
                     width: 100,
                     child: CustomBtn(
-                      onTap: () => Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SignIn(),
-                        ),
-                        (route) => false,
-                      ),
+                      onTap: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        prefs.setBool('showHome', true);
+                        if (context.mounted) {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AuthPage(),
+                            ),
+                            (route) => false,
+                          );
+                        }
+                      },
                       vertical: 10,
                       colorBg: CustomColors.bottomNavColor,
                       colorTxt: Colors.white,

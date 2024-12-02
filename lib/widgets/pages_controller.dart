@@ -1,11 +1,22 @@
+import 'dart:async';
+
+import 'package:enrollease/model/user_model.dart';
+import 'package:enrollease/onboarding_pages/enrollments_page.dart';
+import 'package:enrollease/states_management/account_data_controller.dart';
+import 'package:enrollease/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease/utils/colors.dart';
-import 'package:enrollease/utils/screens_controller.dart';
+import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/model/app_size.dart';
 import 'package:enrollease/model/destinations.dart';
 import 'package:enrollease/states_management/side_menu_index_controller.dart';
 import 'package:enrollease/widgets/bottom_nav_widget.dart';
+import 'package:enrollease/widgets/side_menu_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:enrollease/onboarding_pages/home_page.dart';
+import 'package:enrollease/onboarding_pages/notification_page.dart';
+import 'package:enrollease/onboarding_pages/profile_page.dart';
+import 'package:enrollease/onboarding_pages/school_fees_page.dart';
 
 class PagesController extends StatefulWidget {
   const PagesController({super.key});
@@ -15,28 +26,75 @@ class PagesController extends StatefulWidget {
 }
 
 class _PagesControllerState extends State<PagesController> {
+  late SideMenuIndexController _sideMenuController; // Cached controller
   late final PageController pageController;
+  late UserModel currentUser;
+  final FirebaseAuthProvider _authProvider = FirebaseAuthProvider();
+
+  StreamSubscription<Map<String, dynamic>>? _userDataSubscription;
+
+  String userName = '';
+  String email = '';
+  String role = '';
+  String contactNumber = '';
+  String uid = '';
+  bool isActive = false;
 
   @override
   void initState() {
     super.initState();
-    pageController =
-        PageController(initialPage: 0); // Start with the first page
+    pageController = PageController(initialPage: 0);
 
-    // Listen for changes in selectedIndex from the provider
+    // Cache the controller and add a listener
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<SideMenuIndexController>()
-          .addListener(_onSelectedIndexChange);
+      _sideMenuController = context.read<SideMenuIndexController>();
+      _sideMenuController.addListener(_onSelectedIndexChange);
+      _sideMenuController.initializeNotificationStream();
+    });
+    // Listen to user data changes
+    _userDataSubscription = _authProvider.fetchAndListenToUserData().listen((userData) {
+      if (mounted) {
+        // Start loading
+        final accountDataController = Provider.of<AccountDataController>(context, listen: false);
+        accountDataController.setLoading(true);
+
+        // Set user data
+        final updatedUser = UserModel(
+          userName: userData['userName'] ?? '',
+          email: userData['email'] ?? '',
+          contactNumber: userData['contactNumber'] ?? '',
+          uid: userData['uid'] ?? '',
+          role: userData['role'] ?? '',
+          isActive: userData['isActive'] ?? false,
+          profilePicLink: userData['profilePicLink'] ?? '',
+        );
+
+        setState(() {
+          currentUser = updatedUser;
+          userName = userData['userName'] ?? '';
+          email = userData['email'] ?? '';
+          role = userData['role'] ?? '';
+          contactNumber = userData['contactNumber'] ?? '';
+          uid = userData['uid'] ?? '';
+          isActive = userData['isActive'] ?? false;
+          debugPrint('current data from saved: ${currentUser.toMap()}');
+        });
+
+        // Set user data in AccountDataController
+        accountDataController.setUserData(currentUser);
+        accountDataController.setLoading(false);
+
+        // Debug print statements
+        debugPrint('username: ${currentUser.userName}, email: ${currentUser.email}, role: ${currentUser.role}, contact: ${currentUser.contactNumber}, uid: ${currentUser.uid}, active: ${currentUser.isActive}');
+        debugPrint('${currentUser.toMap()}');
+      }
     });
   }
 
   @override
   void dispose() {
-    // Remove listener when the widget is disposed
-    context
-        .read<SideMenuIndexController>()
-        .removeListener(_onSelectedIndexChange);
+    _sideMenuController.removeListener(_onSelectedIndexChange);
+    _userDataSubscription?.cancel(); // Cancel the subscription correctly
     pageController.dispose();
     super.dispose();
   }
@@ -48,8 +106,7 @@ class _PagesControllerState extends State<PagesController> {
       if ((pageController.page!.round() - selectedIndex).abs() == 1) {
         animatePage(selectedIndex); // Use animation for adjacent pages
       } else {
-        pageController
-            .jumpToPage(selectedIndex); // Jump directly for non-adjacent pages
+        pageController.jumpToPage(selectedIndex); // Jump directly for non-adjacent pages
       }
     }
   }
@@ -67,6 +124,8 @@ class _PagesControllerState extends State<PagesController> {
     AppSizes().init(context); // Initialize screen size
 
     return Scaffold(
+      key: context.read<SideMenuDrawerController>().scaffoldKey,
+      drawer: const SideMenuWidget(),
       backgroundColor: Colors.black,
       body: SafeArea(
         child: GestureDetector(
@@ -75,13 +134,17 @@ class _PagesControllerState extends State<PagesController> {
             builder: (context, sideMenuController, child) {
               return PageView(
                 controller: pageController,
-                physics:
-                    const NeverScrollableScrollPhysics(), // Disable swipe scrolling
+                physics: const NeverScrollableScrollPhysics(), // Disable swipe scrolling
                 onPageChanged: (index) {
-                  sideMenuController
-                      .setSelectedIndex(index); // Update selected index
+                  sideMenuController.setSelectedIndex(index); // Update selected index
                 },
-                children: screens,
+                children: [
+                  const HomePage(),
+                  EnrollmentsPage(uid: uid),
+                  const SchoolFeesPage(),
+                  NotificationPage(userId: uid),
+                  ProfilePage(userId: uid),
+                ],
               );
             },
           ),
@@ -106,17 +169,19 @@ class _PagesControllerState extends State<PagesController> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: bottomNavIcons.asMap().entries.map((entry) {
                 int index = entry.key;
-                String assetPath =
-                    entry.value.assetPath; // Access the asset path property
+                String assetPath = entry.value.assetPath;
+
+                // Dynamically get notification count for the specific index
+                int notificationCount = (index == 3) ? sideMenuController.unreadNotificationCount : 0;
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: BottomNavWidget(
-                    assetPath: assetPath, // Pass the asset path
+                    assetPath: assetPath,
                     index: index,
                     currentIndex: sideMenuController.selectedIndex,
+                    notificationCount: notificationCount, // Pass the notification count
                     onPressed: (val) {
-                      // Update selected index and trigger page transition
                       sideMenuController.setSelectedIndex(val);
                     },
                   ),

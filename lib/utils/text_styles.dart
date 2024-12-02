@@ -17,8 +17,7 @@ class CustomTextStyles {
   }
 
   // You can still provide specific styles if desired
-  static TextStyle inknutAntiquaBlack(
-      {double? fontSize, FontWeight? fontWeight, Color? color}) {
+  static TextStyle inknutAntiquaBlack({double? fontSize, FontWeight? fontWeight, Color? color}) {
     return customInknutAntiquaStyle(
       fontSize: fontSize ?? 20.0,
       fontWeight: fontWeight ?? FontWeight.w900,
@@ -42,8 +41,7 @@ class CustomTextStyles {
   }
 
   // You can still provide specific styles if desired
-  static TextStyle macondoFont(
-      {double? fontSize, FontWeight? fontWeight, Color? color}) {
+  static TextStyle macondoFont({double? fontSize, FontWeight? fontWeight, Color? color}) {
     return customMacondoStyle(
       fontSize: fontSize ?? 20.0,
       fontWeight: fontWeight ?? FontWeight.w900,
@@ -67,8 +65,7 @@ class CustomTextStyles {
   }
 
   // You can still provide specific styles if desired
-  static TextStyle lusitanaFont(
-      {double? fontSize, FontWeight? fontWeight, Color? color}) {
+  static TextStyle lusitanaFont({double? fontSize, FontWeight? fontWeight, Color? color}) {
     return customLusitanaStyle(
       fontSize: fontSize ?? 20.0,
       fontWeight: fontWeight ?? FontWeight.w900,
@@ -92,8 +89,7 @@ class CustomTextStyles {
   }
 
   // You can still provide specific styles if desired
-  static TextStyle maShanZhengFont(
-      {double? fontSize, FontWeight? fontWeight, Color? color}) {
+  static TextStyle maShanZhengFont({double? fontSize, FontWeight? fontWeight, Color? color}) {
     return customMaShanZhengStyle(
       fontSize: fontSize ?? 20.0,
       fontWeight: fontWeight ?? FontWeight.w900,

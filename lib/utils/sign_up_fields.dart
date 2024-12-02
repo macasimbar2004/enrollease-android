@@ -11,6 +11,7 @@ class SignUpFieldsConfig {
   final TextEditingController contactTextController;
   final TextEditingController passwordTextController;
   final TextEditingController confirmPasswordTextController;
+  final TextEditingController userRoleTextController; // For dropdown
   final bool toShowPassword;
 
   SignUpFieldsConfig({
@@ -19,6 +20,7 @@ class SignUpFieldsConfig {
     required this.contactTextController,
     required this.passwordTextController,
     required this.confirmPasswordTextController,
+    required this.userRoleTextController, // Pass in controller for dropdown
     this.toShowPassword = true,
   });
 
@@ -47,13 +49,8 @@ class SignUpFieldsConfig {
         'toShowIcon': false,
         'isPhoneNumber': false,
         'maxLength': 50,
-        'validator': (String? value) {
-          if (value == null || value.isEmpty || !value.contains('@')) {
-            return 'Please enter a valid email';
-          } else {
-            return TextValidator.validateEmail(value.trim());
-          }
-        },
+        'validator': (String? value) =>
+            TextValidator.validateEmail(value!.trim()),
       },
       {
         'controller': contactTextController,
@@ -63,12 +60,7 @@ class SignUpFieldsConfig {
         'toShowIcon': false,
         'isPhoneNumber': true,
         'maxLength': 13,
-        'validator': (String? value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter your contact number';
-          }
-          return null;
-        },
+        'validator': (String? value) => TextValidator.validateContact(value),
       },
       {
         'controller': passwordTextController,
@@ -96,9 +88,29 @@ class SignUpFieldsConfig {
         'validator': (String? value) {
           if (value == null || value != passwordTextController.text) {
             return 'Passwords do not match';
+          } else if (value.isEmpty) {
+            return 'Password must be at least 6 characters';
           }
           return null;
         },
+      },
+      // New Dropdown Field for Parent or Guardian
+      {
+        'controller': userRoleTextController,
+        'hintText': 'Role (Parent/Guardian)',
+        'iconData': const Icon(Icons.group),
+        'toShow': false,
+        'toShowIcon': false,
+        'isPhoneNumber': false,
+        'maxLength': 50,
+        'validator': (String? value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select a role';
+          }
+          return null;
+        },
+        'isDropdown': true, // Flag indicating that this field is a dropdown
+        'dropdownItems': ['Parent', 'Guardian'], // Dropdown options
       },
     ];
   }

@@ -3,13 +3,12 @@ import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/custom_loading_dialog.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/utils/logos.dart';
-import 'package:enrollease/utils/navigation_helper.dart';
 import 'package:enrollease/utils/text_styles.dart';
 import 'package:enrollease/widgets/custom_button.dart';
 import 'package:enrollease/widgets/custom_textformfields.dart';
 import 'package:enrollease/widgets/custom_toast.dart';
-import 'package:enrollease/widgets/pages_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:enrollease/auth/auth.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen(
@@ -29,7 +28,6 @@ class OtpVerificationScreen extends StatefulWidget {
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final TextEditingController otpCodeController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
   final FirebaseAuthProvider _authProvider = FirebaseAuthProvider();
 
   Future<void> _signUp(BuildContext context) async {
@@ -47,29 +45,39 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         try {
           // Save user data in Firestore
           await _authProvider.saveUserData(
-            userId: user.uid,
-            userName: widget.user.name,
-            email: widget.user.email,
-            contactNumber: widget.user.contactNumber,
-          );
+              userId: widget.user.uid,
+              role: widget.user.role,
+              userName: widget.user.userName,
+              email: widget.user.email,
+              contactNumber: widget.user.contactNumber,
+              isActive: widget.user.isActive);
 
           if (context.mounted) {
             Navigator.of(context).pop(); // Close loading indicator
-            navigateWithAnimation(context, const PagesController());
             DelightfulToast.showSuccess(
-                context, 'Success', "Sign up successful!");
+                context, 'Success', 'Sign up successful! Please login.');
+
+            await _authProvider.logOut(context);
+            await Future.delayed(const Duration(seconds: 1));
+          }
+          if (context.mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const AuthPage()),
+              (route) => false,
+            );
           }
         } catch (e) {
           if (context.mounted) {
             Navigator.of(context).pop(); // Close loading indicator
             DelightfulToast.showError(
-                context, 'Error', "Error saving user data: $e");
+                context, 'Error', 'Error saving user data: $e');
           }
         }
       } else {
         // Retrieve error message from authErrorMessage if user is null
         final errorMessage =
-            _authProvider.authErrorMessage ?? "Sign up failed.";
+            _authProvider.authErrorMessage ?? 'Sign up failed.';
 
         if (context.mounted) {
           Navigator.of(context).pop(); // Close loading indicator
@@ -168,9 +176,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                               }
 
                               debugPrint(
-                                  "Form is valid, proceed to next page.");
+                                  'Form is valid, proceed to next page.');
                             } else {
-                              debugPrint("Form is invalid, show errors.");
+                              debugPrint('Form is invalid, show errors.');
                             }
                           },
                           colorBg: CustomColors.appBarColor,

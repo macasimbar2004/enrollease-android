@@ -15,7 +15,10 @@ class CustomCard extends StatelessWidget {
       ),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(12),
-        child: child,
+        child: DefaultTextStyle(
+          style: TextStyle(color: color != null && color == Colors.white ? Colors.black : null),
+          child: child,
+        ),
       ),
     );
   }

@@ -1,19 +1,17 @@
 import 'package:enrollease/utils/colors.dart';
-import 'package:enrollease/utils/custom_loading_dialog.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/utils/logos.dart';
 import 'package:enrollease/utils/text_styles.dart';
-import 'package:enrollease/landing_pages/sign_up.dart';
-import 'package:enrollease/utils/navigation_helper.dart';
 import 'package:enrollease/widgets/custom_button.dart';
 import 'package:enrollease/widgets/custom_textformfields.dart';
 import 'package:enrollease/widgets/custom_toast.dart';
-import 'package:enrollease/widgets/pages_controller.dart';
+import 'package:enrollease/widgets/forgot_pass_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+  final Function()? onTap;
+  const SignIn({super.key, required this.onTap});
 
   @override
   State<SignIn> createState() => _SignInState();
@@ -24,10 +22,19 @@ class _SignInState extends State<SignIn> {
   final passwordTextController = TextEditingController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final FirebaseAuthProvider _authProvider =
-      FirebaseAuthProvider(); // Initialize FirebaseAuthProvider
+  final FirebaseAuthProvider _authProvider = FirebaseAuthProvider(); // Initialize FirebaseAuthProvider
 
   bool toShow = true;
+
+  bool isTapped = false;
+
+  @override
+  void dispose() {
+    // Remove the listener when the widget is disposed
+    userTextController.dispose();
+    passwordTextController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,13 +53,15 @@ class _SignInState extends State<SignIn> {
                     children: [
                       Align(
                         alignment: Alignment.center,
-                        child: CircleAvatar(
-                            radius: 80,
-                            child: Image.asset(CustomLogos.adventistLogo)),
+                        child: CircleAvatar(radius: 80, child: Image.asset(CustomLogos.adventistLogo)),
                       ),
+                      const SizedBox(height: 5),
                       const Divider(
-                        color: Colors.black,
+                        color: Colors.black45,
+                        indent: 20,
+                        endIndent: 20,
                       ),
+                      const SizedBox(height: 15),
                       RichText(
                         text: TextSpan(
                           style: CustomTextStyles.lusitanaFont(
@@ -62,33 +71,33 @@ class _SignInState extends State<SignIn> {
                           ), // Default style for the text
                           children: const <TextSpan>[
                             TextSpan(
-                                text: 'WELCOME TO SDA PRIVATE\n',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold)), // Bold text
+                              text: 'WELCOME TO\n',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                             TextSpan(
-                                text: 'SCHOOL ONLINE\n',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                              text: 'SDA PRIVATE SCHOOL\n',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
                             TextSpan(
-                                text: 'ENROLLMENT',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold)), // Bold text
+                              text: ' ONLINE ENROLLMENT',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                         textAlign: TextAlign.center, // Center the text
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 30),
                       CustomTextFormField(
                         toShow: false,
                         toShowIcon: false,
                         toShowPrefixIcon: true,
                         controller: userTextController,
-                        hintText: 'Enter Username',
+                        // toShowLabelText: true,
+                        hintText: 'Email',
                         iconData: const Icon(CupertinoIcons.person_crop_circle),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a username';
+                            return 'Please enter an email';
                           }
                           return null; // Field is valid
                         },
@@ -100,8 +109,9 @@ class _SignInState extends State<SignIn> {
                         toShow: toShow,
                         toShowIcon: true,
                         toShowPrefixIcon: true,
+                        // toShowLabelText: true,
                         controller: passwordTextController,
-                        hintText: 'Enter Password',
+                        hintText: 'Password',
                         iconData: const Icon(Icons.lock),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -113,37 +123,51 @@ class _SignInState extends State<SignIn> {
                         },
                       ),
                       Align(
-                        alignment: Alignment.centerRight,
+                        alignment: Alignment.centerLeft,
                         child: TextButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              final result = await showDialog(context: context, builder: (context) => const ForgotPassDialog());
+                              if (result is bool && result) {
+                                if (!context.mounted) return;
+                                DelightfulToast.showSuccess(context, 'Success!', 'A password reset link has been sent to your email.');
+                              } else if (result is String) {
+                                if (!context.mounted) return;
+                                DelightfulToast.showSuccess(context, 'Error', result);
+                              }
+                            },
                             child: const Text(
                               'Forgot Password?',
-                              style: TextStyle(color: Colors.black),
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                              ),
                             )),
+                      ),
+                      const SizedBox(
+                        height: 15,
                       ),
                       SizedBox(
                         width: 200,
                         child: CustomBtn(
-                            onTap: () async {
-                              if (formKey.currentState!.validate()) {
-                                await handleSignInMethod(context);
-                              } else {
-                                debugPrint("Form is invalid, show errors.");
-                              }
-                              // navigateWithAnimation(
-                              //   context,
-                              //   const PagesController(),
-                              // );
-                            },
+                            onTap: isTapped
+                                ? null
+                                : () async {
+                                    if (formKey.currentState!.validate()) {
+                                      await handleSignInMethod(context);
+                                    } else {
+                                      debugPrint('Form is invalid, show errors.');
+                                    }
+                                    // navigateWithAnimation(
+                                    //   context,
+                                    //   const PagesController(),
+                                    // );
+                                  },
                             vertical: 10,
                             colorBg: CustomColors.bottomNavColor,
                             colorTxt: Colors.white,
-                            btnTxt: 'Sign In',
+                            btnIcon: isTapped ? Icons.refresh : null,
+                            btnTxt: isTapped ? 'Loading' : 'Sign In',
                             btnFontWeight: FontWeight.normal,
-                            textStyle: CustomTextStyles.lusitanaFont(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal),
+                            textStyle: CustomTextStyles.lusitanaFont(fontSize: 16, color: Colors.white, fontWeight: FontWeight.normal),
                             txtSize: null),
                       ),
                       const SizedBox(
@@ -153,17 +177,16 @@ class _SignInState extends State<SignIn> {
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          const Text("Don't have an account?"),
+                          const Text(
+                            "Don't have an account?",
+                            style: TextStyle(color: Colors.black),
+                          ),
                           TextButton(
-                            onPressed: () => navigateWithAnimation(
-                              context,
-                              const SignUp(),
-                            ),
+                            onPressed: widget.onTap,
                             child: const Text(
-                              'SignUp now',
+                              'Sign up now',
                               style: TextStyle(
                                 color: Colors.blueAccent,
-                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
@@ -179,29 +202,37 @@ class _SignInState extends State<SignIn> {
   }
 
   Future<void> handleSignInMethod(BuildContext context) async {
-    final email = userTextController.text.trim().toLowerCase();
+    if (!context.mounted) return;
+
+    setState(() {
+      isTapped = true;
+    });
+
+    final email = userTextController.text.toLowerCase().trim();
     final password = passwordTextController.text.trim();
 
-    showLoadingDialog(context, 'Signing In...'); // Show loading dialog
-
     // Attempt to log in
-    final user = await _authProvider.logIn(email: email, password: password);
+    final user = await _authProvider.logIn(context, email: email, password: password);
 
     if (user != null) {
+      // Successful login
       if (context.mounted) {
-        Navigator.of(context).pop();
-        // Login successful, navigate to the main page
-        navigateWithAnimation(context, const PagesController());
+        setState(() {
+          isTapped = false;
+        });
       }
     } else {
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        // Login failed, show error message
-        final errorMessage =
-            _authProvider.authErrorMessage ?? 'Login failed. Please try again.';
+      if (!context.mounted) return;
 
-        DelightfulToast.showError(context, 'Error', errorMessage);
+      if (context.mounted) {
+        setState(() {
+          isTapped = false;
+        });
       }
+
+      // Login failed
+      final errorMessage = _authProvider.authErrorMessage ?? 'Login failed. Please try again.';
+      DelightfulToast.showError(context, 'Info', errorMessage);
     }
   }
 }

@@ -5,10 +5,10 @@ import 'package:enrollease/model/user_model.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/custom_loading_dialog.dart';
 import 'package:enrollease/utils/email_provider.dart';
+import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/utils/logos.dart';
 import 'package:enrollease/utils/sign_up_fields.dart';
 import 'package:enrollease/utils/text_styles.dart';
-import 'package:enrollease/landing_pages/sign_in.dart';
 import 'package:enrollease/model/app_size.dart';
 import 'package:enrollease/utils/navigation_helper.dart';
 import 'package:enrollease/widgets/custom_button.dart';
@@ -17,7 +17,8 @@ import 'package:enrollease/widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+  final Function()? onTap;
+  const SignUp({super.key, required this.onTap});
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -25,14 +26,18 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final userTextController = TextEditingController();
+  final userRoleTextController = TextEditingController();
   final emailTextController = TextEditingController();
   final contactTextController = TextEditingController(text: '+63');
   final passwordTextController = TextEditingController();
   final confirmPasswordTextController = TextEditingController();
-
+  final scrollController = ScrollController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   bool toShowPassword = true;
+  final FirebaseAuthProvider _authProvider = FirebaseAuthProvider();
+
+  late String idNumber;
 
   @override
   void initState() {
@@ -59,6 +64,7 @@ class _SignUpState extends State<SignUp> {
     contactTextController.dispose();
     passwordTextController.dispose();
     confirmPasswordTextController.dispose();
+    userRoleTextController.dispose();
     super.dispose();
   }
 
@@ -70,8 +76,7 @@ class _SignUpState extends State<SignUp> {
   }
 
   // Method to send OTP email
-  Future<void> sendOtpEmail(
-      String email, String otpCode, String userName) async {
+  Future<void> sendOtpEmail(String email, String otpCode, String userName) async {
     await sendEmail(email: email, otpCode: otpCode, userName: userName);
   }
 
@@ -86,6 +91,7 @@ class _SignUpState extends State<SignUp> {
       contactTextController: contactTextController,
       passwordTextController: passwordTextController,
       confirmPasswordTextController: confirmPasswordTextController,
+      userRoleTextController: userRoleTextController, // Pass in the controller
       toShowPassword: toShowPassword, // Pass visibility state
     );
 
@@ -94,114 +100,152 @@ class _SignUpState extends State<SignUp> {
       body: SafeArea(
         bottom: false,
         child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: CircleAvatar(
-                        radius: 80,
-                        child: Image.asset(CustomLogos.adventistLogo),
+          child: Scrollbar(
+            controller: scrollController,
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 10,
                       ),
-                    ),
-                    const Divider(color: Colors.black),
-                    RichText(
-                      text: TextSpan(
-                        style: CustomTextStyles.lusitanaFont(
-                          fontSize: 13,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.black,
+                      Align(
+                        alignment: Alignment.center,
+                        child: CircleAvatar(
+                          radius: 60,
+                          child: Image.asset(CustomLogos.adventistLogo),
                         ),
-                        children: const <TextSpan>[
-                          TextSpan(
-                            text: 'WELCOME TO SDA PRIVATE\n',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 5),
+                      const Divider(
+                        color: Colors.black45,
+                        indent: 20,
+                        endIndent: 20,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          style: CustomTextStyles.lusitanaFont(
+                            fontSize: 13,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
                           ),
-                          TextSpan(
-                            text: 'SCHOOL ONLINE\n',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          children: const <TextSpan>[
+                            TextSpan(
+                              text: 'WELCOME TO\n',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(
+                              text: 'SDA PRIVATE SCHOOL\n',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            TextSpan(
+                              text: ' ONLINE ENROLLMENT',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      // Generate CustomTextFormFields dynamically
+                      ...fieldsConfig.getFields().map((field) {
+                        if (field['isDropdown'] == true) {
+                          // Render dropdown for 'Parent' or 'Guardian'
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: DropdownButtonFormField<String>(
+                              value: userRoleTextController.text.isNotEmpty ? userRoleTextController.text : null,
+                              decoration: InputDecoration(
+                                floatingLabelBehavior: FloatingLabelBehavior.never,
+                                hintText: field['hintText'],
+                                alignLabelWithHint: true,
+                                prefixIcon: field['iconData'],
+                                // border: const OutlineInputBorder(),
+                              ),
+                              items: (field['dropdownItems'] as List<String>).map<DropdownMenuItem<String>>((String role) {
+                                return DropdownMenuItem<String>(
+                                  value: role,
+                                  child: Text(role),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  userRoleTextController.text = value ?? '';
+                                });
+                              },
+                              validator: field['validator'] as String? Function(String?),
+                            ),
+                          );
+                        } else {
+                          // Render normal text form fields
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: CustomTextFormField(
+                              toShowPrefixIcon: true,
+                              toShow: field['toShow'],
+                              toShowIcon: field['toShowIcon'],
+                              controller: field['controller'],
+                              hintText: field['hintText'],
+                              iconData: field['iconData'],
+                              isPhoneNumber: field['isPhoneNumber'],
+                              maxLength: field['maxLength'],
+                              validator: field['validator'] as String? Function(String?),
+                            ),
+                          );
+                        }
+                      }),
+
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: 200,
+                        child: CustomBtn(
+                          onTap: () async {
+                            if (formKey.currentState!.validate()) {
+                              await handleSaveMethod(context);
+                            } else {
+                              debugPrint('Form is invalid, show errors.');
+                            }
+                          },
+                          vertical: 10,
+                          colorBg: CustomColors.bottomNavColor,
+                          colorTxt: Colors.white,
+                          btnTxt: 'Sign Up',
+                          btnFontWeight: FontWeight.normal,
+                          textStyle: CustomTextStyles.lusitanaFont(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.normal,
                           ),
-                          TextSpan(
-                            text: 'ENROLLMENT',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          txtSize: null,
+                        ),
+                      ),
+
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Text(
+                            'Already have an account?',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          TextButton(
+                            onPressed: widget.onTap,
+                            child: const Text(
+                              'Sign in instead',
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Generate CustomTextFormFields dynamically
-                    ...fieldsConfig.getFields().map((field) => Padding(
-                          padding: const EdgeInsets.only(bottom: 5),
-                          child: CustomTextFormField(
-                            toShowPrefixIcon: true,
-                            toShow: field['toShow'],
-                            toShowIcon: field['toShowIcon'],
-                            controller: field['controller'],
-                            hintText: field['hintText'],
-                            iconData: field['iconData'],
-                            isPhoneNumber: field['isPhoneNumber'],
-                            maxLength: field['maxLength'],
-                            validator:
-                                field['validator'] as String? Function(String?),
-                          ),
-                        )),
-
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: 200,
-                      child: CustomBtn(
-                        onTap: () async {
-                          if (formKey.currentState!.validate()) {
-                            await handleSaveMethod(context);
-                          } else {
-                            debugPrint("Form is invalid, show errors.");
-                          }
-                        },
-                        vertical: 10,
-                        colorBg: CustomColors.bottomNavColor,
-                        colorTxt: Colors.white,
-                        btnTxt: 'Sign Up',
-                        btnFontWeight: FontWeight.normal,
-                        textStyle: CustomTextStyles.lusitanaFont(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.normal,
-                        ),
-                        txtSize: null,
-                      ),
-                    ),
-
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        const Text("Already have an account?"),
-                        TextButton(
-                          onPressed: () => navigateWithAnimation(
-                            context,
-                            const SignIn(),
-                          ),
-                          child: const Text(
-                            'SignIn now',
-                            style: TextStyle(
-                              color: Colors.blueAccent,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -216,22 +260,26 @@ class _SignUpState extends State<SignUp> {
     showLoadingDialog(context, 'Loading...'); // Show loading dialog
 
     try {
+      idNumber = await _authProvider.generateNewIdentification();
+
       // Send OTP email
-      await sendOtpEmail(emailTextController.text.trim(), otpCode,
-          userTextController.text.trim());
+      await sendOtpEmail(emailTextController.text.trim(), otpCode, userTextController.text.trim());
 
       // If the form is valid, process the signup
       if (context.mounted) {
         Navigator.of(context).pop();
 
         final user = UserModel(
-          name: userTextController.text.trim(),
+          userName: userTextController.text.trim(),
+          role: userRoleTextController.text.trim(),
           email: emailTextController.text.trim().toLowerCase(),
           contactNumber: contactTextController.text.trim(),
+          uid: idNumber,
+          profilePicLink: 'default',
+          isActive: true,
         );
-
-        DelightfulToast.showSuccess(context, 'Success', "OTP has been sent.");
-
+        //generate unique id
+        DelightfulToast.showSuccess(context, 'Success', 'OTP has been sent.');
         navigateWithAnimation(
           context,
           OtpVerificationScreen(
@@ -248,7 +296,7 @@ class _SignUpState extends State<SignUp> {
       }
     }
 
-    debugPrint("Form is valid, proceed with signup.");
+    debugPrint('Form is valid, proceed with signup.');
   }
 }
 

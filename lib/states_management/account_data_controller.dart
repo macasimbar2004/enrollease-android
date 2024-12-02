@@ -1,79 +1,133 @@
+import 'package:enrollease/model/user_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountDataController extends ChangeNotifier {
   bool _isLoggedIn = false;
+  bool _isLoading = false;
 
-  String? _currentUserName;
-  String? get currentUserName => _currentUserName;
+  UserModel? _currentUser;
 
-  String? _currentUserEmail;
-  String? get currentEmail => _currentUserEmail;
-
-  String? _currentUserContactNumber;
-  String? get currentUserContactNumber => _currentUserContactNumber;
-
-  AccountDataController() {
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    _currentUserName = prefs.getString('currentUserName');
-    _currentUserEmail = prefs.getString('currentEmail');
-    _currentUserContactNumber = prefs.getString('currentUserContactNumber');
-    _isLoggedIn = _currentUserName != null &&
-        _currentUserEmail != null &&
-        _currentUserContactNumber != null;
-    notifyListeners();
-  }
-
-  Future<void> _saveUserData({
-    String? userName,
-    String? userEmail,
-    String? userContactNumber,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (userName != null) await prefs.setString('currentUserName', userName);
-    if (userEmail != null) await prefs.setString('currentEmail', userEmail);
-    if (userContactNumber != null) {
-      await prefs.setString('currentUserContactNumber', userContactNumber);
-    }
-    notifyListeners();
-  }
-
+  UserModel? get currentUser => _currentUser;
+  bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
 
-  Future<void> setUserData({
-    String? userName,
-    String? userEmail,
-    String? userContactNumber,
-  }) async {
-    _currentUserName = userName;
-    _currentUserEmail = userEmail;
-    _currentUserContactNumber = userContactNumber;
-    _isLoggedIn =
-        userName != null && userEmail != null && userContactNumber != null;
+  AccountDataController() {
+    loadUserData();
+  }
 
-    // Save user data and load it immediately after saving
-    await _saveUserData(
-      userName: userName,
-      userEmail: userEmail,
-      userContactNumber: userContactNumber,
+  // Load user data from SharedPreferences
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    _currentUser = UserModel(
+      userName: prefs.getString('userName') ?? '',
+      email: prefs.getString('email') ?? '',
+      contactNumber: prefs.getString('contactNumber') ?? '',
+      uid: prefs.getString('uid') ?? '',
+      role: prefs.getString('role') ?? '',
+      isActive: prefs.getBool('isActive') ?? false,
+      profilePicLink: prefs.getString('profilePicLink') ?? '',
     );
-    await _loadUserData(); // Load user data after saving
 
+    _isLoggedIn = _currentUser?.uid.isNotEmpty ?? false;
+
+    debugPrint('Loaded user data: ${_currentUser?.toMap()}');
     notifyListeners();
   }
 
+  // Save user data to SharedPreferences
+  Future<void> setUserData(UserModel? user) async {
+    if (user == null) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('userName', user.userName);
+      await prefs.setString('email', user.email);
+      await prefs.setString('contactNumber', user.contactNumber);
+      await prefs.setString('uid', user.uid);
+      await prefs.setString('role', user.role);
+      await prefs.setBool('isActive', user.isActive);
+
+      _isLoggedIn = user.uid.isNotEmpty;
+
+      await loadUserData();
+      debugPrint('User data saved and reloaded: ${_currentUser?.toMap()}');
+    } catch (e) {
+      debugPrint('Error saving user data: $e');
+    }
+  }
+
+  // Dynamically update specific fields in UserModel
+  void updateUserLocal(Map<String, dynamic> updatedFields) {
+    if (_currentUser != null) {
+      final currentData = _currentUser!.toMap();
+
+      updatedFields.forEach((key, value) {
+        if (currentData.containsKey(key) && value != null) {
+          currentData[key] = value;
+        }
+      });
+
+      _currentUser = UserModel.fromMap(currentData);
+
+      debugPrint('Updated user data: ${_currentUser?.toMap()}');
+      notifyListeners();
+    }
+  }
+
+  // void updateUserLocal(Map<String, dynamic> updatedFields) {
+  //   if (_currentUser != null) {
+  //     final currentData = _currentUser!.toMap();
+
+  //     updatedFields.forEach((key, value) {
+  //       if (currentData.containsKey(key) && value != null) {
+  //         currentData[key] = value;
+  //       }
+  //     });
+
+  //     _currentUser = UserModel(
+  //       name: currentData['name'] ?? _currentUser!.name,
+  //       email: currentData['email'] ?? _currentUser!.email,
+  //       contactNumber:
+  //           currentData['contactNumber'] ?? _currentUser!.contactNumber,
+  //       uid: currentData['uid'] ?? _currentUser!.uid,
+  //       role: currentData['role'] ?? _currentUser!.role,
+  //       isActive: currentData['isActive'] ?? _currentUser!.isActive,
+  //     );
+
+  //     debugPrint('Updated user data: ${_currentUser!.toMap()}');
+  //     notifyListeners();
+  //   }
+  // }
+
+  // Set the login state
   Future<void> setLoggedIn(bool loggedIn) async {
     _isLoggedIn = loggedIn;
     if (!loggedIn) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('currentUserName');
-      await prefs.remove('currentEmail');
-      await prefs.remove('currentUserContactNumber');
+      await prefs.remove('userName');
+      await prefs.remove('email');
+      await prefs.remove('contactNumber');
+      await prefs.remove('uid');
+      await prefs.remove('role');
+      await prefs.remove('isActive');
+      _currentUser = null;
     }
+    notifyListeners();
+  }
+
+  // Set loading state
+  void setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  // Clear user data
+  void clearUserData() {
+    _currentUser = null;
+    _isLoggedIn = false;
     notifyListeners();
   }
 }

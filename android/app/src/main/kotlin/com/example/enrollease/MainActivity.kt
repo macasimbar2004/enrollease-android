@@ -1,4 +1,4 @@
-package com.example.enrollease
+package com.apexvision.enrollease
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -13,7 +13,7 @@ class CustomBtn extends StatelessWidget {
   final IconData? btnIcon;
   final FocusNode? focusNode;
   final String? imageAsset;
-
+  final double horizontal;
   const CustomBtn({
     super.key,
     this.onTap,
@@ -28,6 +28,7 @@ class CustomBtn extends StatelessWidget {
     this.focusNode,
     this.textStyle,
     this.imageAsset,
+    this.horizontal = 3,
   });
 
   @override
@@ -46,7 +47,7 @@ class CustomBtn extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(10.0),
         child: Ink(
-          padding: EdgeInsets.symmetric(vertical: vertical),
+          padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
             color: colorBg,

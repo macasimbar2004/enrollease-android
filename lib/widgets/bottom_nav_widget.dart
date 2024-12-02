@@ -8,12 +8,14 @@ class BottomNavWidget extends StatelessWidget {
     required this.index,
     required this.currentIndex,
     required this.onPressed,
+    this.notificationCount = 0, // Add notification count
   });
 
-  final String assetPath; // Change icon to assetPath
+  final String assetPath; // Image asset path
   final int index;
   final int currentIndex;
   final Function(int) onPressed;
+  final int notificationCount; // Notification count
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,6 @@ class BottomNavWidget extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Shadow effect
             if (currentIndex == index)
               Container(
                 width: AppSizes.blockSizeHorizontal * 10,
@@ -45,20 +46,44 @@ class BottomNavWidget extends StatelessWidget {
                   ],
                 ),
               ),
-
-            // Image asset with opacity animation
             AnimatedOpacity(
               opacity: (currentIndex == index) ? 1 : 0.8,
               duration: const Duration(milliseconds: 300),
               child: Image.asset(
-                assetPath, // Load the image asset
-                color: currentIndex == index
-                    ? Colors.black87
-                    : Colors.black54, // Tint for selected/unselected
+                assetPath,
+                color: currentIndex == index ? Colors.black87 : Colors.black54,
                 width: AppSizes.blockSizeHorizontal * 8,
                 height: AppSizes.blockSizeHorizontal * 8,
               ),
             ),
+            // Notification counter
+            if (notificationCount > 0 &&
+                index == 3) // Show only for notifications
+              Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: Center(
+                    child: Text(
+                      notificationCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 7,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

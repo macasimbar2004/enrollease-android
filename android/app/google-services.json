@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:481835554226:android:aa56796c609db5fd75c0ab",
+        "mobilesdk_app_id": "1:481835554226:android:03fbf63d355e866175c0ab",
         "android_client_info": {
-          "package_name": "com.example.enrollease"
+          "package_name": "com.apexvision.enrollease"
         }
       },
       "oauth_client": [],
