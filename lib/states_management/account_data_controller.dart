@@ -1,3 +1,4 @@
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/user_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +33,7 @@ class AccountDataController extends ChangeNotifier {
 
     _isLoggedIn = _currentUser?.uid.isNotEmpty ?? false;
 
-    debugPrint('Loaded user data: ${_currentUser?.toMap()}');
+    dPrint('Loaded user data: ${_currentUser?.toMap()}');
     notifyListeners();
   }
 
@@ -53,9 +54,9 @@ class AccountDataController extends ChangeNotifier {
       _isLoggedIn = user.uid.isNotEmpty;
 
       await loadUserData();
-      debugPrint('User data saved and reloaded: ${_currentUser?.toMap()}');
+      dPrint('User data saved and reloaded: ${_currentUser?.toMap()}');
     } catch (e) {
-      debugPrint('Error saving user data: $e');
+      dPrint('Error saving user data: $e');
     }
   }
 
@@ -72,7 +73,7 @@ class AccountDataController extends ChangeNotifier {
 
       _currentUser = UserModel.fromMap(currentData);
 
-      debugPrint('Updated user data: ${_currentUser?.toMap()}');
+      dPrint('Updated user data: ${_currentUser?.toMap()}');
       notifyListeners();
     }
   }
@@ -97,7 +98,7 @@ class AccountDataController extends ChangeNotifier {
   //       isActive: currentData['isActive'] ?? _currentUser!.isActive,
   //     );
 
-  //     debugPrint('Updated user data: ${_currentUser!.toMap()}');
+  //     dPrint('Updated user data: ${_currentUser!.toMap()}');
   //     notifyListeners();
   //   }
   // }

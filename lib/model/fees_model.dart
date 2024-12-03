@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class FeesModel {
   final double entrance;
   final double tuition;
@@ -19,6 +21,54 @@ class FeesModel {
 
   double total() {
     return entrance + tuition + misc + books + watchman + aircon + others;
+  }
+
+  String totalFormatted({bool pesoSign = true}) {
+    return '${pesoSign ? 'P' : ''}${NumberFormat('#,###').format(total())}';
+  }
+
+  FeesModel copyWith({
+    final double? entrance,
+    final double? tuition,
+    final double? misc,
+    final double? books,
+    final double? watchman,
+    final double? aircon,
+    final double? others,
+  }) {
+    return FeesModel(
+      entrance: entrance ?? this.entrance,
+      tuition: tuition ?? this.tuition,
+      misc: misc ?? this.misc,
+      books: books ?? this.books,
+      watchman: watchman ?? this.watchman,
+      aircon: aircon ?? this.aircon,
+      others: others ?? this.others,
+    );
+  }
+
+  factory FeesModel.fromMap(Map<String, dynamic> data) {
+    return FeesModel(
+      entrance: data['entrance'],
+      tuition: data['tuition'],
+      misc: data['misc'],
+      books: data['books'],
+      watchman: data['watchman'],
+      aircon: data['aircon'],
+      others: data['others'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'entrance': entrance,
+      'tuition': tuition,
+      'misc': misc,
+      'books': books,
+      'watchman': watchman,
+      'aircon': aircon,
+      'others': others,
+    };
   }
 }
 

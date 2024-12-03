@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enrollease/appwrite.dart';
 import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/enrollment_form_model.dart';
+import 'package:enrollease/model/user_model.dart';
 import 'package:enrollease/states_management/account_data_controller.dart';
 import 'package:enrollease/states_management/side_menu_index_controller.dart';
 import 'package:enrollease/utils/email_provider.dart';
@@ -83,11 +84,13 @@ class FirebaseAuthProvider {
 
       // Clear any previous error message
       authErrorMessage = null;
+      final user = UserModel.fromMap(userQuerySnapshot.docs.first.data());
+      await EmailProvider().sendLoginAlert(email: email, userName: user.userName);
 
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       authErrorMessage = _handleAuthError(e); // Handle Firebase Auth errors
-      debugPrint('Error during login: ${e.message}');
+      dPrint('Error during login: ${e.message}');
       return null; // Return null to indicate failure
     }
   }
@@ -96,9 +99,9 @@ class FirebaseAuthProvider {
   Future<void> saveUserData({required String userId, required String userName, required String role, required String email, required String contactNumber, required bool isActive}) async {
     try {
       await _firestore.collection('users').doc(userId).set({'uid': userId, 'userName': userName, 'role': role, 'email': email, 'contactNumber': contactNumber, 'isActive': isActive});
-      debugPrint('User data saved successfully.');
+      dPrint('User data saved successfully.');
     } catch (e) {
-      debugPrint('Error saving user data: $e');
+      dPrint('Error saving user data: $e');
     }
   }
 
@@ -111,9 +114,9 @@ class FirebaseAuthProvider {
           .doc(enrollmentForm.regNo) // Use the generated ID here
           .set(enrollmentForm.toMap());
 
-      debugPrint('User data saved successfully with ID: ${enrollmentForm.regNo}.');
+      dPrint('User data saved successfully with ID: ${enrollmentForm.regNo}.');
     } catch (e) {
-      debugPrint('Error saving user data: $e');
+      dPrint('Error saving user data: $e');
     }
   }
 
@@ -144,7 +147,7 @@ class FirebaseAuthProvider {
       // Generate the new ID
       return '$yearPrefix$newIncrement';
     } catch (e) {
-      debugPrint('Error generating new identification ID: $e');
+      dPrint('Error generating new identification ID: $e');
       return 'SDAP${DateTime.now().year % 100}-000000'; // Fallback to first ID if error occurs
     }
   }
@@ -202,7 +205,7 @@ class FirebaseAuthProvider {
         yield lastGeneratedEnrollmentNo;
       }
     } catch (e) {
-      debugPrint('Error generating new enrollment number: $e');
+      dPrint('Error generating new enrollment number: $e');
       yield '${yearPrefix}000000-${_getUniqueSuffix()}'; // Fallback ID if error occurs
     }
   }
@@ -253,7 +256,7 @@ class FirebaseAuthProvider {
       // Commit the batch operation
       await batch.commit();
     } catch (e) {
-      debugPrint('Error updating notifications: $e');
+      dPrint('Error updating notifications: $e');
     }
   }
 

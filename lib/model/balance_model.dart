@@ -1,6 +1,11 @@
 // should be created every time enrollment is approved
+
+import 'package:enrollease/model/fees_model.dart';
+
 class BalanceAccount {
+  final String id;
   final String gradeLevel; // e.g. K1-01, K1-02, K1-03, auto-generated
+  final int? schoolYearStart;
   final String parentID; // UserModel
   /// from UserModel, we will get:
   /// user name
@@ -21,7 +26,13 @@ class BalanceAccount {
   /// unpaidBill
   final double tuitionDiscount;
   final double bookDiscount;
+  final FeesModel startingBalance; // starting balanace when created
+  final FeesModel remainingBalance; // the remaining balanace
   BalanceAccount({
+    required this.id,
+    required this.schoolYearStart,
+    required this.startingBalance,
+    required this.remainingBalance,
     required this.gradeLevel,
     required this.parentID,
     required this.pupilID,
@@ -29,8 +40,12 @@ class BalanceAccount {
     required this.bookDiscount,
   });
 
-  factory BalanceAccount.fromMap(Map<String, dynamic> data) {
+  factory BalanceAccount.fromMap(String id, Map<String, dynamic> data) {
     return BalanceAccount(
+      id: id,
+      schoolYearStart: data['schoolYearStart'],
+      startingBalance: FeesModel.fromMap(data['startingBalance']),
+      remainingBalance: FeesModel.fromMap(data['remainingBalance']),
       gradeLevel: data['gradeLevel'],
       parentID: data['parentID'],
       pupilID: data['pupilID'],
@@ -41,6 +56,10 @@ class BalanceAccount {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
+      'schoolYearStart': schoolYearStart,
+      'startingBalance': startingBalance.toMap(),
+      'remainingBalance': remainingBalance.toMap(),
       'gradeLevel': gradeLevel,
       'parentID': parentID,
       'pupilID': pupilID,

@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/enrollment_form_model.dart';
 import 'package:enrollease/model/enrollment_status_enum.dart';
 import 'package:enrollease/model/gender_enum.dart';
-import 'package:enrollease/onboarding_pages/enroll_form_page.dart';
+import 'package:enrollease/pages/enroll_form_page.dart';
 import 'package:enrollease/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/nav.dart';
@@ -82,7 +83,7 @@ class _EnrollFormPageState extends State<EnrollmentsPage> {
                               itemCount: enrollments.length,
                               itemBuilder: (context, i) {
                                 final enrollment = enrollments[i];
-                                debugPrint(enrollment.toString());
+                                dPrint(enrollment.toString());
                                 return Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: ListTile(

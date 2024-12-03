@@ -1,6 +1,6 @@
 import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/user_model.dart';
-import 'package:enrollease/onboarding_pages/calendar_page.dart';
+import 'package:enrollease/pages/calendar_page.dart';
 import 'package:enrollease/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/firebase_auth.dart';

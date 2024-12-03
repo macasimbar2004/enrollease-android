@@ -1,7 +1,8 @@
 import 'dart:async';
 
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/user_model.dart';
-import 'package:enrollease/onboarding_pages/enrollments_page.dart';
+import 'package:enrollease/pages/enrollments_page.dart';
 import 'package:enrollease/states_management/account_data_controller.dart';
 import 'package:enrollease/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease/utils/colors.dart';
@@ -13,10 +14,10 @@ import 'package:enrollease/widgets/bottom_nav_widget.dart';
 import 'package:enrollease/widgets/side_menu_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:enrollease/onboarding_pages/home_page.dart';
-import 'package:enrollease/onboarding_pages/notification_page.dart';
-import 'package:enrollease/onboarding_pages/profile_page.dart';
-import 'package:enrollease/onboarding_pages/school_fees_page.dart';
+import 'package:enrollease/pages/home_page.dart';
+import 'package:enrollease/pages/notification_page.dart';
+import 'package:enrollease/pages/profile_page.dart';
+import 'package:enrollease/pages/school_fees_page.dart';
 
 class PagesController extends StatefulWidget {
   const PagesController({super.key});
@@ -77,7 +78,7 @@ class _PagesControllerState extends State<PagesController> {
           contactNumber = userData['contactNumber'] ?? '';
           uid = userData['uid'] ?? '';
           isActive = userData['isActive'] ?? false;
-          debugPrint('current data from saved: ${currentUser.toMap()}');
+          dPrint('current data from saved: ${currentUser.toMap()}');
         });
 
         // Set user data in AccountDataController
@@ -85,8 +86,8 @@ class _PagesControllerState extends State<PagesController> {
         accountDataController.setLoading(false);
 
         // Debug print statements
-        debugPrint('username: ${currentUser.userName}, email: ${currentUser.email}, role: ${currentUser.role}, contact: ${currentUser.contactNumber}, uid: ${currentUser.uid}, active: ${currentUser.isActive}');
-        debugPrint('${currentUser.toMap()}');
+        dPrint('username: ${currentUser.userName}, email: ${currentUser.email}, role: ${currentUser.role}, contact: ${currentUser.contactNumber}, uid: ${currentUser.uid}, active: ${currentUser.isActive}');
+        dPrint('${currentUser.toMap()}');
       }
     });
   }

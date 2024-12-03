@@ -1,3 +1,4 @@
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/utils/logos.dart';
@@ -154,7 +155,7 @@ class _SignInState extends State<SignIn> {
                                     if (formKey.currentState!.validate()) {
                                       await handleSignInMethod(context);
                                     } else {
-                                      debugPrint('Form is invalid, show errors.');
+                                      dPrint('Form is invalid, show errors.');
                                     }
                                     // navigateWithAnimation(
                                     //   context,

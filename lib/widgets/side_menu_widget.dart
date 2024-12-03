@@ -1,3 +1,4 @@
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/utils/logos.dart';
@@ -17,7 +18,6 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     return Drawer(
       backgroundColor: Colors.white,
       child: Column(
@@ -40,8 +40,7 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
                       // Conditionally show the Text widget based on isVisible
                       Flexible(
                         child: FittedBox(
-                          fit: BoxFit
-                              .scaleDown, // Scales text when space is limited
+                          fit: BoxFit.scaleDown, // Scales text when space is limited
                           child: Text(
                             'Enrollease',
                             style: CustomTextStyles.lusitanaFont(
@@ -50,8 +49,7 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
                               fontWeight: FontWeight.normal,
                             ),
                             textAlign: TextAlign.center,
-                            overflow: TextOverflow
-                                .ellipsis, // Clip text when it overflows
+                            overflow: TextOverflow.ellipsis, // Clip text when it overflows
                           ),
                         ),
                       ),
@@ -78,7 +76,7 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
                   await auth.logOut(context);
                 }
               } else {
-                debugPrint('Logout canceled by user.');
+                dPrint('Logout canceled by user.');
               }
             },
             child: const ListTile(

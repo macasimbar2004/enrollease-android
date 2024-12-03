@@ -1,3 +1,4 @@
+import 'package:enrollease/dev.dart';
 import 'package:flutter/material.dart';
 
 Widget? streamHandler(AsyncSnapshot snapshot) {
@@ -7,7 +8,7 @@ Widget? streamHandler(AsyncSnapshot snapshot) {
     );
   }
   if (snapshot.hasError || snapshot.data == null) {
-    debugPrint(snapshot.error.toString());
+    dPrint(snapshot.error.toString());
     return Center(
       child: ErrorWidget.withDetails(message: snapshot.error.toString()),
     );

@@ -181,7 +181,7 @@ class _EnrollFormPageState extends State<EnrollFormPage> {
         Nav.pop(context);
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      dPrint('Error: $e');
       if (context.mounted) {
         Navigator.pop(context);
         DelightfulToast.showError(context, 'Error', 'Enrollment form failed to submitted.');
@@ -284,7 +284,14 @@ class _EnrollFormPageState extends State<EnrollFormPage> {
               validator: (value) => TextValidator.simpleValidator(value),
             ),
             const SizedBox(height: 10),
+            _buildTextField(
+              placeOfBirthController,
+              'Place of Birth',
+              validator: (value) => TextValidator.simpleValidator(value),
+            ),
+            const SizedBox(height: 10),
             _buildGenderSelection(),
+            const SizedBox(height: 10),
             _buildTextField(
               religionController,
               'Religion',
@@ -293,6 +300,32 @@ class _EnrollFormPageState extends State<EnrollFormPage> {
             const Text('If baptized SDA, when?'),
             const SizedBox(height: 10),
             _buildSDABapField(),
+            const SizedBox(height: 10),
+            _buildIpOrIcc(),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Text('Civil Status:'),
+                Flexible(
+                  child: _buildDropdown<CivilStatus>(
+                      value: cStatus,
+                      items: CivilStatus.values,
+                      hint: '<Select status>',
+                      onChanged: (value) {
+                        setState(() {
+                          cStatus = value;
+                        });
+                      },
+                      errorText: 'Please select an option.'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            _buildTextField(
+              motherTongueController,
+              'Mother Tongue',
+              validator: (value) => TextValidator.simpleValidator(value),
+            ),
             const SizedBox(height: 10),
             const Divider(color: Colors.black),
             const SizedBox(height: 10),
@@ -489,7 +522,7 @@ class _EnrollFormPageState extends State<EnrollFormPage> {
 
   Future<String?> uploadData(CredentialData type, PlatformFile file) async {
     final mimeType = lookupMimeType(file.path!);
-    debugPrint(mimeType);
+    dPrint(mimeType);
     final fileID = '$regNo-${type.name}';
     try {
       final response = await storage.createFile(
@@ -501,10 +534,10 @@ class _EnrollFormPageState extends State<EnrollFormPage> {
           contentType: mimeType,
         ),
       );
-      debugPrint('File uploaded: ${response.$id}');
+      dPrint('File uploaded: ${response.$id}');
       return fileID;
     } catch (e) {
-      debugPrint('Error uploading file: $e');
+      dPrint('Error uploading file: $e');
       return null;
     }
   }
@@ -688,6 +721,51 @@ class _EnrollFormPageState extends State<EnrollFormPage> {
     );
   }
 
+  Widget _buildIpOrIcc() {
+    return FormField<bool>(
+      validator: (value) {
+        if (value == null) {
+          return 'Select an option.';
+        }
+        return null;
+      },
+      builder: (field) {
+        return Row(
+          children: [
+            const Text('Are you Ip/Icc? '),
+            buildIpOrIccRadio(true, field),
+            buildIpOrIccRadio(false, field),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildIpOrIccRadio(bool value, FormFieldState<bool> field) {
+    return Row(
+      children: [
+        Radio(
+          value: value,
+          groupValue: field.value,
+          onChanged: (newValue) {
+            field.didChange(newValue);
+            setState(() {
+              ipOrIcc = newValue!;
+            });
+          },
+          // activeColor: Colors.black,
+          fillColor: WidgetStateProperty.resolveWith((states) {
+            if (field.hasError) {
+              return Colors.red; // Red color when there is an error
+            }
+            return Colors.black54;
+          }),
+        ),
+        Text(value ? 'Yes' : 'No'),
+      ],
+    );
+  }
+
   Widget buildGenderRadio(Gender value, FormFieldState<Gender> field) {
     return Row(
       children: [
@@ -852,7 +930,7 @@ class _EnrollFormPageState extends State<EnrollFormPage> {
                 await handleEnrollmentFormSave(context);
               } else {
                 DelightfulToast.showError(context, 'Error', 'Please provide all fields!');
-                debugPrint('Form is invalid, show errors.');
+                dPrint('Form is invalid, show errors.');
               }
             },
           ),

@@ -1,6 +1,8 @@
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/user_model.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/custom_loading_dialog.dart';
+import 'package:enrollease/utils/email_provider.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/utils/logos.dart';
 import 'package:enrollease/utils/text_styles.dart';
@@ -11,11 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:enrollease/auth/auth.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
-  const OtpVerificationScreen(
-      {super.key,
-      required this.user,
-      required this.otpCode,
-      required this.password});
+  const OtpVerificationScreen({super.key, required this.user, required this.otpCode, required this.password});
 
   final UserModel user;
   final String otpCode;
@@ -44,23 +42,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (user != null) {
         try {
           // Save user data in Firestore
-          await _authProvider.saveUserData(
-              userId: widget.user.uid,
-              role: widget.user.role,
-              userName: widget.user.userName,
-              email: widget.user.email,
-              contactNumber: widget.user.contactNumber,
-              isActive: widget.user.isActive);
+          await _authProvider.saveUserData(userId: widget.user.uid, role: widget.user.role, userName: widget.user.userName, email: widget.user.email, contactNumber: widget.user.contactNumber, isActive: widget.user.isActive);
 
           if (context.mounted) {
             Navigator.of(context).pop(); // Close loading indicator
-            DelightfulToast.showSuccess(
-                context, 'Success', 'Sign up successful! Please login.');
+            DelightfulToast.showSuccess(context, 'Success', 'Sign up successful! Please login.');
 
             await _authProvider.logOut(context);
             await Future.delayed(const Duration(seconds: 1));
           }
           if (context.mounted) {
+            await EmailProvider().sendLoginAlert(email: widget.user.email, userName: widget.user.userName);
+            if (!context.mounted) return;
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const AuthPage()),
@@ -70,14 +63,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         } catch (e) {
           if (context.mounted) {
             Navigator.of(context).pop(); // Close loading indicator
-            DelightfulToast.showError(
-                context, 'Error', 'Error saving user data: $e');
+            DelightfulToast.showError(context, 'Error', 'Error saving user data: $e');
           }
         }
       } else {
         // Retrieve error message from authErrorMessage if user is null
-        final errorMessage =
-            _authProvider.authErrorMessage ?? 'Sign up failed.';
+        final errorMessage = _authProvider.authErrorMessage ?? 'Sign up failed.';
 
         if (context.mounted) {
           Navigator.of(context).pop(); // Close loading indicator
@@ -104,19 +95,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   children: [
                     Align(
                       alignment: Alignment.center,
-                      child: CircleAvatar(
-                          radius: 80,
-                          child: Image.asset(CustomLogos.adventistLogo)),
+                      child: CircleAvatar(radius: 80, child: Image.asset(CustomLogos.adventistLogo)),
                     ),
                     const Divider(
                       color: Colors.black,
                     ),
                     Text(
                       'Enter OTP Code',
-                      style: CustomTextStyles.inknutAntiquaBlack(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black), // Example of passing values
+                      style: CustomTextStyles.inknutAntiquaBlack(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black), // Example of passing values
                     ),
                     const SizedBox(
                       height: 10,
@@ -166,19 +152,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                               // If the otp is valid, next page
 
                               try {
-                                if (widget.otpCode ==
-                                    otpCodeController.text.trim()) {
+                                if (widget.otpCode == otpCodeController.text.trim()) {
                                   _signUp(context);
                                 }
                                 //vali
                               } catch (ex) {
-                                debugPrint(ex.toString());
+                                dPrint(ex.toString());
                               }
 
-                              debugPrint(
-                                  'Form is valid, proceed to next page.');
+                              dPrint('Form is valid, proceed to next page.');
                             } else {
-                              debugPrint('Form is invalid, show errors.');
+                              dPrint('Form is invalid, show errors.');
                             }
                           },
                           colorBg: CustomColors.appBarColor,

@@ -1,5 +1,6 @@
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/app_size.dart';
-import 'package:enrollease/onboarding_pages/stream_data/stream_notifications.dart';
+import 'package:enrollease/pages/stream_data/stream_notifications.dart';
 import 'package:enrollease/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
@@ -23,7 +24,7 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
-    debugPrint('id: ${widget.userId.toString()}');
+    dPrint('id: ${widget.userId.toString()}');
     _docIdsFuture = auth.getDocId(context, widget.userId);
     auth.markNotificationsAsRead(context, widget.userId);
   }

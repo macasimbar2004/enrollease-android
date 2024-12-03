@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/landing_pages/otp_verification.dart';
 import 'package:enrollease/model/user_model.dart';
 import 'package:enrollease/utils/colors.dart';
@@ -7,6 +8,7 @@ import 'package:enrollease/utils/custom_loading_dialog.dart';
 import 'package:enrollease/utils/email_provider.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/utils/logos.dart';
+import 'package:enrollease/utils/nav.dart';
 import 'package:enrollease/utils/sign_up_fields.dart';
 import 'package:enrollease/utils/text_styles.dart';
 import 'package:enrollease/model/app_size.dart';
@@ -14,6 +16,8 @@ import 'package:enrollease/utils/navigation_helper.dart';
 import 'package:enrollease/widgets/custom_button.dart';
 import 'package:enrollease/widgets/custom_textformfields.dart';
 import 'package:enrollease/widgets/custom_toast.dart';
+import 'package:enrollease/widgets/terms_and_conditions_widget.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatefulWidget {
@@ -68,16 +72,17 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
-  // Method to generate a 6-digit OTP
-  String generateOtp() {
-    final random = Random();
-    final otp = random.nextInt(900000) + 100000; // Ensures a 6-digit OTP
-    return otp.toString();
-  }
-
   // Method to send OTP email
-  Future<void> sendOtpEmail(String email, String otpCode, String userName) async {
-    await sendEmail(email: email, otpCode: otpCode, userName: userName);
+  Future<void> sendOtpEmail({
+    required String email,
+    required String userName,
+    required String otp,
+  }) async {
+    await EmailProvider().sendOTP(
+      email: email,
+      userName: userName,
+      otp: otp,
+    );
   }
 
   @override
@@ -208,7 +213,7 @@ class _SignUpState extends State<SignUp> {
                             if (formKey.currentState!.validate()) {
                               await handleSaveMethod(context);
                             } else {
-                              debugPrint('Form is invalid, show errors.');
+                              dPrint('Form is invalid, show errors.');
                             }
                           },
                           vertical: 10,
@@ -224,7 +229,25 @@ class _SignUpState extends State<SignUp> {
                           txtSize: null,
                         ),
                       ),
-
+                      // Wrap(
+                      //   alignment: WrapAlignment.center,
+                      //   crossAxisAlignment: WrapCrossAlignment.center,
+                      //   children: [
+                      //     RichText(
+                      //         text: TextSpan(
+                      //       children: [
+                      //         TextSpan(text: 'I agree to the '),
+                      //         TextSpan(
+                      //           text: 'Terms and Conditions',
+                      //           recognizer: TapGestureRecognizer()
+                      //             ..onTap = () {
+                      //               showDialog(context: context, builder: (context) => TermsAndConditionsWidget());
+                      //             },
+                      //         )
+                      //       ],
+                      //     )),
+                      //   ],
+                      // ),
                       Wrap(
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,
@@ -255,15 +278,26 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
+  // Method to generate a 6-digit OTP
+  String generateOtp() {
+    final random = Random();
+    final otp = random.nextInt(900000) + 100000; // Ensures a 6-digit OTP
+    return otp.toString();
+  }
+
   Future<void> handleSaveMethod(BuildContext context) async {
-    final otpCode = generateOtp(); // Generate OTP
+    final otp = generateOtp();
     showLoadingDialog(context, 'Loading...'); // Show loading dialog
 
     try {
       idNumber = await _authProvider.generateNewIdentification();
 
       // Send OTP email
-      await sendOtpEmail(emailTextController.text.trim(), otpCode, userTextController.text.trim());
+      await sendOtpEmail(
+        email: emailTextController.text.trim(),
+        userName: userTextController.text.trim(),
+        otp: otp,
+      );
 
       // If the form is valid, process the signup
       if (context.mounted) {
@@ -284,19 +318,19 @@ class _SignUpState extends State<SignUp> {
           context,
           OtpVerificationScreen(
             user: user,
-            otpCode: otpCode,
+            otpCode: otp,
             password: passwordTextController.text.trim(),
           ),
         );
       }
     } catch (ex) {
-      debugPrint(ex.toString());
+      dPrint(ex.toString());
       if (context.mounted) {
         Navigator.of(context).pop();
       }
     }
 
-    debugPrint('Form is valid, proceed with signup.');
+    dPrint('Form is valid, proceed with signup.');
   }
 }
 

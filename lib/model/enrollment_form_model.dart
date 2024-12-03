@@ -17,7 +17,7 @@ class EnrollmentFormModel {
   final String address;
   final String motherTongue;
   final CivilStatus civilStatus;
-  final bool ipOrIcc;
+  final bool? ipOrIcc;
   final String? sdaBaptismDate;
   final int cellno;
   final String lastSchoolAttended;
@@ -127,8 +127,8 @@ class EnrollmentFormModel {
     late Grade enrollingGrade;
     late EnrollmentStatus status;
     late Gender gender;
-    late CivilStatus cs;
-    switch (map['enrollingGrade']) {
+    CivilStatus cs = CivilStatus.single;
+    switch (map['civilStatus']) {
       case 'single':
         cs = CivilStatus.single;
         break;
@@ -188,7 +188,7 @@ class EnrollmentFormModel {
       address: map['address'] ?? '',
       motherTongue: map['motherTongue'] ?? '',
       civilStatus: cs,
-      ipOrIcc: map['ipOrIcc'] ?? '',
+      ipOrIcc: map['ipOrIcc'] ?? false,
       regNo: map['regNo'] ?? '',
       firstName: map['firstName'] ?? '',
       lastName: map['lastName'] ?? '',
