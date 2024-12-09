@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
+import 'package:enrollease/states_management/account_data_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SideMenuIndexController extends ChangeNotifier {
   int _selectedIndex = 0;
@@ -43,9 +45,8 @@ class SideMenuIndexController extends ChangeNotifier {
   }
 
   /// Initializes the notification stream listener
-  void initializeNotificationStream() {
-    _notificationStreamSubscription =
-        getUnreadNotificationCountStream().listen((notificationCount) {
+  void initializeNotificationStream(BuildContext context) {
+    _notificationStreamSubscription = getUnreadNotificationCountStream(context).listen((notificationCount) {
       _unreadNotificationCount = notificationCount;
       notifyListeners();
     });
@@ -59,11 +60,25 @@ class SideMenuIndexController extends ChangeNotifier {
   }
 
   /// Returns a stream that tracks the unread notification count
-  Stream<int> getUnreadNotificationCountStream() {
+  Stream<int> getUnreadNotificationCountStream(BuildContext context) {
+    final userID = context.read<AccountDataController>().currentUser!.uid;
     return FirebaseFirestore.instance
         .collection('notifications')
-        .where('isRead', isEqualTo: false)
+        .where(
+          'type',
+          isEqualTo: 'user',
+        )
+        .where(
+          'uid',
+          isEqualTo: userID,
+        )
+        .where(
+          'isRead',
+          isEqualTo: false,
+        )
         .snapshots()
-        .map((snapshot) => snapshot.docs.length);
+        .map(
+          (snapshot) => snapshot.docs.length,
+        );
   }
 }

@@ -8,7 +8,6 @@ import 'package:enrollease/utils/custom_loading_dialog.dart';
 import 'package:enrollease/utils/email_provider.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
 import 'package:enrollease/utils/logos.dart';
-import 'package:enrollease/utils/nav.dart';
 import 'package:enrollease/utils/sign_up_fields.dart';
 import 'package:enrollease/utils/text_styles.dart';
 import 'package:enrollease/model/app_size.dart';
@@ -16,6 +15,7 @@ import 'package:enrollease/utils/navigation_helper.dart';
 import 'package:enrollease/widgets/custom_button.dart';
 import 'package:enrollease/widgets/custom_textformfields.dart';
 import 'package:enrollease/widgets/custom_toast.dart';
+import 'package:enrollease/widgets/privacy_policy_widget.dart';
 import 'package:enrollease/widgets/terms_and_conditions_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +37,8 @@ class _SignUpState extends State<SignUp> {
   final confirmPasswordTextController = TextEditingController();
   final scrollController = ScrollController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  bool privacyPolicy = false;
+  bool termsAndcons = false;
 
   bool toShowPassword = true;
   final FirebaseAuthProvider _authProvider = FirebaseAuthProvider();
@@ -204,7 +206,116 @@ class _SignUpState extends State<SignUp> {
                           );
                         }
                       }),
-
+                      Row(
+                        children: [
+                          FormField<bool>(
+                            initialValue: termsAndcons,
+                            validator: (value) {
+                              if (value == null || value == false) {
+                                return 'You must accept terms & conditions.';
+                              }
+                              return null;
+                            },
+                            builder: (state) {
+                              return Checkbox(
+                                  isError: state.hasError,
+                                  // fillColor: WidgetStateProperty.resolveWith((states) {
+                                  //   if (state.hasError) {
+                                  //     return Colors.red; // Red color when there is an error
+                                  //   }
+                                  //   return Colors.black54;
+                                  // }),
+                                  value: state.value,
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      state.didChange(value);
+                                      state.validate();
+                                      setState(() {
+                                        termsAndcons = value;
+                                      });
+                                    }
+                                  });
+                            },
+                          ),
+                          const SizedBox(width: 5),
+                          RichText(
+                              text: TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: 'I agree to the ',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              TextSpan(
+                                style: const TextStyle(color: Colors.blue),
+                                text: 'terms and conditions',
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    showDialog(context: context, builder: (context) => const TermsAndConditionsWidget());
+                                  },
+                              ),
+                              const TextSpan(
+                                text: '.',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          )),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          FormField<bool>(
+                            initialValue: privacyPolicy,
+                            validator: (value) {
+                              if (value == null || value == false) {
+                                return 'You must accept the privacy policy.';
+                              }
+                              return null;
+                            },
+                            builder: (state) {
+                              return Checkbox(
+                                  isError: state.hasError,
+                                  // fillColor: WidgetStateProperty.resolveWith((states) {
+                                  //   if (state.hasError) {
+                                  //     return Colors.red; // Red color when there is an error
+                                  //   }
+                                  //   return Colors.black54;
+                                  // }),
+                                  value: state.value,
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      state.didChange(value);
+                                      state.validate();
+                                      setState(() {
+                                        privacyPolicy = value;
+                                      });
+                                    }
+                                  });
+                            },
+                          ),
+                          const SizedBox(width: 5),
+                          RichText(
+                              text: TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: 'I accept the ',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              TextSpan(
+                                style: const TextStyle(color: Colors.blue),
+                                text: 'privacy policy',
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    showDialog(context: context, builder: (context) => const PrivacyPolicyWidget());
+                                  },
+                              ),
+                              const TextSpan(
+                                text: '.',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          )),
+                        ],
+                      ),
                       const SizedBox(height: 10),
                       SizedBox(
                         width: 200,
@@ -229,25 +340,6 @@ class _SignUpState extends State<SignUp> {
                           txtSize: null,
                         ),
                       ),
-                      // Wrap(
-                      //   alignment: WrapAlignment.center,
-                      //   crossAxisAlignment: WrapCrossAlignment.center,
-                      //   children: [
-                      //     RichText(
-                      //         text: TextSpan(
-                      //       children: [
-                      //         TextSpan(text: 'I agree to the '),
-                      //         TextSpan(
-                      //           text: 'Terms and Conditions',
-                      //           recognizer: TapGestureRecognizer()
-                      //             ..onTap = () {
-                      //               showDialog(context: context, builder: (context) => TermsAndConditionsWidget());
-                      //             },
-                      //         )
-                      //       ],
-                      //     )),
-                      //   ],
-                      // ),
                       Wrap(
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,

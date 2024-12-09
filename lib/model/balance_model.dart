@@ -1,5 +1,4 @@
 // should be created every time enrollment is approved
-
 import 'package:enrollease/model/fees_model.dart';
 
 class BalanceAccount {
@@ -51,6 +50,30 @@ class BalanceAccount {
       pupilID: data['pupilID'],
       tuitionDiscount: data['tuitionDiscount'],
       bookDiscount: data['bookDiscount'],
+    );
+  }
+
+  BalanceAccount copyWith({
+    String? id,
+    String? gradeLevel,
+    int? schoolYearStart,
+    String? parentID,
+    String? pupilID,
+    double? tuitionDiscount,
+    double? bookDiscount,
+    FeesModel? startingBalance,
+    FeesModel? remainingBalance,
+  }) {
+    return BalanceAccount(
+      id: id ?? this.id,
+      schoolYearStart: schoolYearStart ?? this.schoolYearStart,
+      startingBalance: startingBalance ?? this.startingBalance,
+      remainingBalance: remainingBalance ?? this.remainingBalance,
+      gradeLevel: gradeLevel ?? this.gradeLevel,
+      parentID: parentID ?? this.parentID,
+      pupilID: pupilID ?? this.pupilID,
+      tuitionDiscount: tuitionDiscount ?? this.tuitionDiscount,
+      bookDiscount: bookDiscount ?? this.bookDiscount,
     );
   }
 

@@ -1,3 +1,5 @@
+import 'package:enrollease/dev.dart';
+
 class UserModel {
   final String userName;
   final String email;
@@ -21,6 +23,9 @@ class UserModel {
 
   // A method to convert data from a map (useful for Firestore)
   factory UserModel.fromMap(Map<String, dynamic> data) {
+    if (data.isEmpty) {
+      dPrint('Data is empty!');
+    }
     // Gender? gender;
     // switch (data['gender']) {
     //   case 'male':

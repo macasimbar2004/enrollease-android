@@ -1,3 +1,4 @@
+import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/civil_status_enum.dart';
 import 'package:enrollease/model/enrollment_status_enum.dart';
 import 'package:enrollease/model/gender_enum.dart';
@@ -124,10 +125,13 @@ class EnrollmentFormModel {
 
   // Create model from Map
   factory EnrollmentFormModel.fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) {
+      dPrint('Data is empty!');
+    }
     late Grade enrollingGrade;
     late EnrollmentStatus status;
     late Gender gender;
-    CivilStatus cs = CivilStatus.single;
+    late CivilStatus cs;
     switch (map['civilStatus']) {
       case 'single':
         cs = CivilStatus.single;

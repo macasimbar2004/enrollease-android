@@ -49,13 +49,13 @@ class FeesModel {
 
   factory FeesModel.fromMap(Map<String, dynamic> data) {
     return FeesModel(
-      entrance: data['entrance'],
-      tuition: data['tuition'],
-      misc: data['misc'],
-      books: data['books'],
-      watchman: data['watchman'],
-      aircon: data['aircon'],
-      others: data['others'],
+      entrance: data['entrance'] != null ? data['entrance'].toDouble() : 0.0,
+      tuition: data['tuition'] != null ? data['tuition'].toDouble() : 0.0,
+      misc: data['misc'] != null ? data['misc'].toDouble() : 0.0,
+      books: data['books'] != null ? data['books'].toDouble() : 0.0,
+      watchman: data['watchman'] != null ? data['watchman'].toDouble() : 0.0,
+      aircon: data['aircon'] != null ? data['aircon'].toDouble() : 0.0,
+      others: data['others'] != null ? data['others'].toDouble() : 0.0,
     );
   }
 

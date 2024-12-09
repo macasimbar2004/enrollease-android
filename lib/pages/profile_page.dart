@@ -1,10 +1,8 @@
 import 'package:enrollease/dev.dart';
 import 'package:enrollease/model/user_model.dart';
-import 'package:enrollease/pages/calendar_page.dart';
 import 'package:enrollease/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease/utils/colors.dart';
 import 'package:enrollease/utils/firebase_auth.dart';
-import 'package:enrollease/utils/nav.dart';
 import 'package:enrollease/utils/text_styles.dart';
 import 'package:enrollease/widgets/change_contact_dialog.dart';
 import 'package:enrollease/widgets/change_email_dialog.dart';
@@ -301,38 +299,38 @@ class _BuildProfilePageState extends State<BuildProfilePage> {
                       title: const Text('Change password'),
                       trailing: const Icon(Icons.arrow_forward),
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Divider(
-                      thickness: 2,
-                      color: Colors.white,
-                      indent: 10,
-                      endIndent: 10,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 5),
-                      child: Text(
-                        'System',
-                        style: TextStyle(
-                          fontSize: 23,
-                        ),
-                      ),
-                    ),
-                    ListTile(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onTap: () => Nav.push(context, const SchoolCalendarPage()),
-                      iconColor: Colors.white,
-                      titleTextStyle: titleTextStyle,
-                      subtitleTextStyle: subtitleTextStyle,
-                      leading: const Icon(Icons.calendar_month),
-                      title: const Text('School Calendar'),
-                      subtitle: const Text('View upcoming events'),
-                      trailing: const Icon(Icons.arrow_forward),
-                    ),
+                    // const SizedBox(
+                    //   height: 10,
+                    // ),
+                    // const Divider(
+                    //   thickness: 2,
+                    //   color: Colors.white,
+                    //   indent: 10,
+                    //   endIndent: 10,
+                    // ),
+                    // const SizedBox(
+                    //   height: 10,
+                    // ),
+                    // const Padding(
+                    //   padding: EdgeInsets.only(left: 5),
+                    //   child: Text(
+                    //     'System',
+                    //     style: TextStyle(
+                    //       fontSize: 23,
+                    //     ),
+                    //   ),
+                    // ),
+                    // ListTile(
+                    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    //   onTap: () => Nav.push(context, const SchoolCalendarPage()),
+                    //   iconColor: Colors.white,
+                    //   titleTextStyle: titleTextStyle,
+                    //   subtitleTextStyle: subtitleTextStyle,
+                    //   leading: const Icon(Icons.calendar_month),
+                    //   title: const Text('School Calendar'),
+                    //   subtitle: const Text('View upcoming events'),
+                    //   trailing: const Icon(Icons.arrow_forward),
+                    // ),
                   ],
                 ),
               ),

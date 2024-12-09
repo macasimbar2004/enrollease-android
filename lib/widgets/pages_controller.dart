@@ -50,7 +50,7 @@ class _PagesControllerState extends State<PagesController> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _sideMenuController = context.read<SideMenuIndexController>();
       _sideMenuController.addListener(_onSelectedIndexChange);
-      _sideMenuController.initializeNotificationStream();
+      _sideMenuController.initializeNotificationStream(context);
     });
     // Listen to user data changes
     _userDataSubscription = _authProvider.fetchAndListenToUserData().listen((userData) {

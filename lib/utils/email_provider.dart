@@ -5,13 +5,12 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
-const serviceId = 'service_fu003qm';
-const templateId = 'template_pmmet1b';
-const userId = 'CWwCkiWFJJkqjm1XP';
-
 final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
 
 class EmailProvider {
+  final serviceId = 'service_fu003qm';
+  final templateId = 'template_pmmet1b';
+  final userId = 'CWwCkiWFJJkqjm1XP';
   Future<void> _sendEmail({
     required String email,
     required String userName,

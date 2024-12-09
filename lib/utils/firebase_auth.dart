@@ -302,7 +302,8 @@ class FirebaseAuthProvider {
     }
   }
 
-  Future<Uint8List?> getProfilePic() async {
+  Future<Uint8List?> getProfilePic(BuildContext context) async {
+    final userId = context.read<AccountDataController>().currentUser!.uid;
     try {
       final bytes = await storage.getFileDownload(
         bucketId: bucketIDProfilePics,
@@ -324,14 +325,18 @@ class FirebaseAuthProvider {
     final mimeType = lookupMimeType(file.path!);
     dPrint(mimeType);
     try {
-      // remove previous, because appwrite doesn't allow file overwrite
-      await storage.deleteFile(bucketId: bucketIDProfilePics, fileId: userId);
+      try {
+        // remove previous, because appwrite doesn't allow file overwrite
+        await storage.deleteFile(bucketId: bucketIDProfilePics, fileId: userID);
+      } catch (e) {
+        dPrint(e.toString());
+      }
       final response = await storage.createFile(
         bucketId: bucketIDProfilePics, // Replace with your bucket ID
-        fileId: userId,
+        fileId: userID,
         file: InputFile.fromBytes(
           bytes: file.bytes!,
-          filename: userId,
+          filename: userID,
           contentType: mimeType,
         ),
       );
